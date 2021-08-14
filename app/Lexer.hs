@@ -2,7 +2,11 @@
 
 module Lexer where
 
+  import Control.Applicative (Alternative (..))
   import qualified Data.Bifunctor as Bifunctor
+  import GHC.List (foldl1')
+  import GHC.Unicode (isDigit)
+  
   infixl 1 |>
   (|>) :: a -> (a -> b) -> b
   x |> f = f x
@@ -14,6 +18,18 @@ module Lexer where
   data LexerError = Unexpected Char
     | UnexpectedEOF
     deriving (Show)
+
+  data Token =
+    StringLiteral String
+    | IntLiteral Int
+    | BoolLiteral Bool
+    | Comma -- ,
+    | Colon -- :
+    | BracketOpen -- [
+    | BracketClose -- ]
+    | BraceOpen -- {
+    | BraceClose -- }
+    deriving (Eq, Show)
 
   newtype Lexer a = Lexer {
     runLexer :: String -> Either LexerError (a, String)
@@ -32,6 +48,15 @@ module Lexer where
         (f', rest) <- f input
         (a', rest') <- a rest
         return (f' a', rest')
+  
+  instance Alternative Lexer where
+    empty = Lexer (Left . unexpected)
+    (Lexer lA) <|> (Lexer lB) =
+      Lexer $ \input -> case (lA input, lB input) of
+        (res, Left _) -> res
+        (Left _, res) -> res
+        (a@(Right (_, restA)), b@(Right (_, restB))) ->
+          if length restA <= length restB then a else b
 
   unexpected :: String -> LexerError
   unexpected [] = UnexpectedEOF
@@ -45,3 +70,29 @@ module Lexer where
 
   char :: Char -> Lexer Char
   char c = expects (c ==)
+
+  string :: String -> Lexer String
+  string = traverse char
+
+  oneOf :: [Lexer a] -> Lexer a
+  oneOf = foldl1' (<|>)
+
+  token :: Lexer Token
+  token = operator <|> literal
+    where
+      operator = oneOf
+        [
+          Comma <$ string ",",
+          Colon <$ string ":",
+          BracketOpen <$ string "[",
+          BracketClose <$ string "]",
+          BraceOpen <$ string "{",
+          BraceClose <$ string "}"
+        ]
+      literal = stringLiteral <|> intLiteral <|> boolLiteral
+        where
+          stringLiteral = StringLiteral <$> (char '"' *> many (expects (/= '"')) <* char '"')
+          intLiteral = IntLiteral . read <$> some (expects isDigit)
+          boolLiteral = (BoolLiteral True <$ string "true") <|> (BoolLiteral False <$ string "false")
+
+  lexer = runLexer (some token)
