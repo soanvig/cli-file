@@ -1,6 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Lexer where
+module Lexer (Token (..)) where
 
   import Control.Applicative (Alternative (..))
   import qualified Data.Bifunctor as Bifunctor
@@ -8,13 +8,13 @@ module Lexer where
   import GHC.Unicode (isDigit)
   import Data.Char (isSpace)
   
-  infixl 1 |>
-  (|>) :: a -> (a -> b) -> b
-  x |> f = f x
+  -- infixl 1 |>
+  -- (|>) :: a -> (a -> b) -> b
+  -- x |> f = f x
 
-  infixr 0 <|
-  (<|) :: (a -> b) -> a -> b
-  (<|) = ($)
+  -- infixr 0 <|
+  -- (<|) :: (a -> b) -> a -> b
+  -- (<|) = ($)
 
   data LexerError = Unexpected Char
     | UnexpectedEOF
@@ -36,9 +36,6 @@ module Lexer where
   newtype Lexer a = Lexer {
     runLexer :: String -> Either LexerError (a, String)
   }
-
-  instance Show (Lexer a) where
-    show (Lexer a) = "Some Lexer"
 
   instance Functor Lexer where
     fmap f (Lexer g) = Lexer (fmap (Bifunctor.first f) . g)
