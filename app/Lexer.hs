@@ -6,6 +6,7 @@ module Lexer where
   import qualified Data.Bifunctor as Bifunctor
   import GHC.List (foldl1')
   import GHC.Unicode (isDigit)
+  import Data.Char (isSpace)
   
   infixl 1 |>
   (|>) :: a -> (a -> b) -> b
@@ -29,6 +30,7 @@ module Lexer where
     | BracketClose -- ]
     | BraceOpen -- {
     | BraceClose -- }
+    | Whitespace
     deriving (Eq, Show)
 
   newtype Lexer a = Lexer {
@@ -73,6 +75,9 @@ module Lexer where
 
   string :: String -> Lexer String
   string = traverse char
+  
+  whitespace :: Lexer String
+  whitespace = some $ expects isSpace
 
   oneOf :: [Lexer a] -> Lexer a
   oneOf = foldl1' (<|>)
@@ -87,7 +92,8 @@ module Lexer where
           BracketOpen <$ string "[",
           BracketClose <$ string "]",
           BraceOpen <$ string "{",
-          BraceClose <$ string "}"
+          BraceClose <$ string "}",
+          Whitespace <$ whitespace
         ]
       literal = stringLiteral <|> intLiteral <|> boolLiteral
         where
@@ -95,4 +101,8 @@ module Lexer where
           intLiteral = IntLiteral . read <$> some (expects isDigit)
           boolLiteral = (BoolLiteral True <$ string "true") <|> (BoolLiteral False <$ string "false")
 
-  lexer = runLexer (some token)
+  removeWhitespaces :: [Token] -> [Token]
+  removeWhitespaces = filter (/= Whitespace)
+
+  lexer = fmap filtering <$> runLexer (some token)
+    where filtering = Bifunctor.first removeWhitespaces
