@@ -1,6 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Parser where
+module Parser (JsonValue (..), runParser, arrayParser, ParserError) where
 
   import Lexer (Token (..))
   import Control.Applicative (Alternative (..))
@@ -12,6 +12,7 @@ module Parser where
     | JsonBool Bool
     | JsonArray [JsonValue]
     | JsonObject [(String, JsonValue)]
+    deriving (Show)
 
   data ParserError =
     Unexpected Token
@@ -60,3 +61,14 @@ module Parser where
   boolParser = Parser $ \case
     (BoolLiteral a) : rest -> Right (JsonBool a, rest)
     rest -> Left $ unexpected rest
+
+  tokenParser :: Token -> Parser Token
+  tokenParser predicate = Parser $ \case
+      token : rest | (token == predicate) -> Right (token, rest)
+      rest -> Left $ unexpected rest
+
+  arrayParser :: Parser JsonValue
+  arrayParser = JsonArray <$> (tokenParser BracketOpen *> many jsonValue <* tokenParser BracketClose)
+
+  jsonValue :: Parser JsonValue
+  jsonValue = stringParser <|> numberParser <|> boolParser <|> arrayParser

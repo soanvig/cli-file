@@ -1,6 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Lexer (Token (..)) where
+module Lexer (Token (..), lexer, LexerError) where
 
   import Control.Applicative (Alternative (..))
   import qualified Data.Bifunctor as Bifunctor
@@ -101,5 +101,6 @@ module Lexer (Token (..)) where
   removeWhitespaces :: [Token] -> [Token]
   removeWhitespaces = filter (/= Whitespace)
 
+  lexer :: String -> Either LexerError ([Token], String)
   lexer = fmap filtering <$> runLexer (some token)
     where filtering = Bifunctor.first removeWhitespaces
