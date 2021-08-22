@@ -1,9 +1,9 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Parser (JsonValue (..), runParser, arrayParser, ParserError) where
+module Parser (JsonValue (..), runParser, jsonValue, ParserError) where
 
   import Lexer (Token (..))
-  import Control.Applicative (Alternative (..))
+  import Control.Applicative (Alternative (..), liftA2)
   import qualified Data.Bifunctor as Bifunctor
 
   data JsonValue =
@@ -67,8 +67,18 @@ module Parser (JsonValue (..), runParser, arrayParser, ParserError) where
       token : rest | (token == predicate) -> Right (token, rest)
       rest -> Left $ unexpected rest
 
+  manyWithSeparator :: Parser b -> Parser a -> Parser [b]
+  manyWithSeparator element sep = (:) <$> element <*> many (sep *> element) <|> pure []
+  
   arrayParser :: Parser JsonValue
-  arrayParser = JsonArray <$> (tokenParser BracketOpen *> many jsonValue <* tokenParser BracketClose)
+  arrayParser = JsonArray <$> (tokenParser BracketOpen *> manyWithSeparator jsonValue (tokenParser Comma) <* tokenParser BracketClose)
+
+  objectParser :: Parser JsonValue
+  objectParser = JsonObject <$> (tokenParser BraceOpen *> manyWithSeparator declarationParser (tokenParser Comma) <* tokenParser BraceClose)
+    where declarationParser = (,) <$> (keyParser <* tokenParser Colon) <*> jsonValue
+          keyParser = Parser $ \case
+            (StringLiteral a) : rest -> Right (a, rest)
+            rest -> Left $ unexpected rest
 
   jsonValue :: Parser JsonValue
-  jsonValue = stringParser <|> numberParser <|> boolParser <|> arrayParser
+  jsonValue = objectParser <|> stringParser <|> numberParser <|> boolParser <|> arrayParser
