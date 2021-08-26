@@ -8,10 +8,10 @@ module Main where
 
   main = putStr "Welcome" 
 
-  run :: String -> Either ParserError (JsonValue, [Token])
+  run :: String -> Either ParserError JsonValue
   run input = runParser $ fst <$> lexer input
 
-  runParser :: Either Lexer.LexerError [Token] -> Either ParserError (JsonValue, [Token])
+  runParser :: Either Lexer.LexerError [Token] -> Either ParserError JsonValue
   runParser (Right tokens) = parser tokens
   runParser (Left _) = error "cannot parse json"
     

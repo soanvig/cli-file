@@ -87,5 +87,8 @@ module Parser (JsonValue (..), parser, ParserError) where
   jsonValue :: Parser JsonValue
   jsonValue = objectParser <|> stringParser <|> numberParser <|> boolParser <|> arrayParser <|> nullParser
 
-  parser :: [Token] -> Either ParserError (JsonValue, [Token])
-  parser = runParser jsonValue
+  parser :: [Token] -> Either ParserError JsonValue
+  parser tokens = case runParser jsonValue tokens of
+    Left error -> Left error
+    Right (value, []) -> Right value
+    Right (_, rest) -> Left $ unexpected rest
