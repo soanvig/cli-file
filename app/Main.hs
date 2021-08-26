@@ -13,8 +13,6 @@ module Main where
     return tokens
 
   test :: Either Lexer.LexerError [Token] -> Either ParserError (JsonValue, [Token])
-  test (Right tokens) = runParser jsonValue tokens
+  test (Right tokens) = parser tokens
   test (Left _) = undefined
     
-    -- fmap parsing <$> lexer input
-    -- where parsing = Bifunctor.first (runParser arrayParser)

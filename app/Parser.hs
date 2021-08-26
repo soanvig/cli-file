@@ -1,6 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Parser (JsonValue (..), runParser, jsonValue, ParserError) where
+module Parser (JsonValue (..), parser, ParserError) where
 
   import Lexer (Token (..))
   import Control.Applicative (Alternative (..), liftA2)
@@ -82,3 +82,6 @@ module Parser (JsonValue (..), runParser, jsonValue, ParserError) where
 
   jsonValue :: Parser JsonValue
   jsonValue = objectParser <|> stringParser <|> numberParser <|> boolParser <|> arrayParser
+
+  parser :: [Token] -> Either ParserError (JsonValue, [Token])
+  parser = runParser jsonValue
