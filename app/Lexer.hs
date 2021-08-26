@@ -7,7 +7,8 @@ module Lexer (Token (..), lexer, LexerError) where
   import GHC.List (foldl1')
   import GHC.Unicode (isDigit)
   import Data.Char (isSpace)
-  
+  import qualified Data.Maybe (fromMaybe)
+
   -- infixl 1 |>
   -- (|>) :: a -> (a -> b) -> b
   -- x |> f = f x
@@ -24,6 +25,7 @@ module Lexer (Token (..), lexer, LexerError) where
     StringLiteral String
     | IntLiteral Int
     | BoolLiteral Bool
+    | NullLiteral
     | Comma -- ,
     | Colon -- :
     | BracketOpen -- [
@@ -47,7 +49,7 @@ module Lexer (Token (..), lexer, LexerError) where
         (f', rest) <- f input
         (a', rest') <- a rest
         return (f' a', rest')
-  
+
   instance Alternative Lexer where
     empty = Lexer (Left . unexpected)
     (Lexer lA) <|> (Lexer lB) =
@@ -70,9 +72,18 @@ module Lexer (Token (..), lexer, LexerError) where
   char :: Char -> Lexer Char
   char c = expects (c ==)
 
+  digit :: Lexer Char
+  digit = expects isDigit
+
   string :: String -> Lexer String
   string = traverse char
-  
+
+  number :: Lexer Int
+  number = maybeReadNumber <$> some digit
+    where
+      maybeReadNumber :: String -> Int
+      maybeReadNumber str = fromMaybe 0 (readMaybe str) -- 0 case should never happen in fact
+
   whitespace :: Lexer String
   whitespace = some $ expects isSpace
 
@@ -92,11 +103,12 @@ module Lexer (Token (..), lexer, LexerError) where
           BraceClose <$ string "}",
           Whitespace <$ whitespace
         ]
-      literal = stringLiteral <|> intLiteral <|> boolLiteral
+      literal = stringLiteral <|> intLiteral <|> boolLiteral <|> nullLiteral
         where
           stringLiteral = StringLiteral <$> (char '"' *> many (expects (/= '"')) <* char '"')
-          intLiteral = IntLiteral . read <$> some (expects isDigit)
+          intLiteral = IntLiteral <$> number
           boolLiteral = (BoolLiteral True <$ string "true") <|> (BoolLiteral False <$ string "false")
+          nullLiteral = NullLiteral <$ string "null"
 
   removeWhitespaces :: [Token] -> [Token]
   removeWhitespaces = filter (/= Whitespace)

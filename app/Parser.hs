@@ -10,6 +10,7 @@ module Parser (JsonValue (..), parser, ParserError) where
     JsonString String
     | JsonNumber Int
     | JsonBool Bool
+    | JsonNull
     | JsonArray [JsonValue]
     | JsonObject [(String, JsonValue)]
     deriving (Show)
@@ -79,9 +80,12 @@ module Parser (JsonValue (..), parser, ParserError) where
           keyParser = Parser $ \case
             (StringLiteral a) : rest -> Right (a, rest)
             rest -> Left $ unexpected rest
+  
+  nullParser :: Parser JsonValue
+  nullParser = JsonNull <$ tokenParser NullLiteral
 
   jsonValue :: Parser JsonValue
-  jsonValue = objectParser <|> stringParser <|> numberParser <|> boolParser <|> arrayParser
+  jsonValue = objectParser <|> stringParser <|> numberParser <|> boolParser <|> arrayParser <|> nullParser
 
   parser :: [Token] -> Either ParserError (JsonValue, [Token])
   parser = runParser jsonValue

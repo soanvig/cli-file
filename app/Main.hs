@@ -1,18 +1,17 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
-  import Lexer
+  import Lexer ( lexer, Token, LexerError )
   import Parser
   import qualified Data.Bifunctor as Bifunctor
 
-  main :: IO ()
-  main = putStrLn "Hello, Haskell!"
+  main = putStr "Welcome" 
 
-  run :: String -> Either Lexer.LexerError [Token]
-  run input = do
-    (tokens, rest) <- lexer input
-    return tokens
+  run :: String -> Either ParserError (JsonValue, [Token])
+  run input = runParser $ fst <$> lexer input
 
-  test :: Either Lexer.LexerError [Token] -> Either ParserError (JsonValue, [Token])
-  test (Right tokens) = parser tokens
-  test (Left _) = undefined
+  runParser :: Either Lexer.LexerError [Token] -> Either ParserError (JsonValue, [Token])
+  runParser (Right tokens) = parser tokens
+  runParser (Left _) = error "cannot parse json"
     
