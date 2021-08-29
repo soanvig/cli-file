@@ -11,7 +11,7 @@ executable lexer
     main-is:          Main.hs
 
     other-modules:
-        Lexer
+        Parser
 
     build-depends:    base ^>=4.14.1.0
                      , relude ^>= 1.0.0.0

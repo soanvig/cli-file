@@ -1,4 +1,4 @@
-module Lexer where
+module Parser where
 
   import Text.Parsec ( anyChar, manyTill, space, string, char, eof )
   import Text.Parsec.String (Parser)
