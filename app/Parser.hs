@@ -3,13 +3,7 @@ module Parser where
   import Prelude hiding ((<|>))
   import Text.Parsec (anyChar, manyTill, space, string, char, eof, parse, (<|>), try)
   import Text.Parsec.String (Parser)
-
-  data Argument = ArgumentOptional String String
-    | ArgumentRequired String
-    deriving (Show)
-  
-  data Command = Command String Argument String
-    deriving (Show)
+  import Symbol
 
   commandNameParser :: Parser String
   commandNameParser = manyTill anyChar space
