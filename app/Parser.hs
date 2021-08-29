@@ -1,19 +1,29 @@
 module Parser where
 
-  import Text.Parsec ( anyChar, manyTill, space, string, char, eof )
+  import Prelude hiding ((<|>))
+  import Text.Parsec (anyChar, manyTill, space, string, char, eof, parse, (<|>), try)
   import Text.Parsec.String (Parser)
+
+  data Argument = ArgumentOptional String String
+    | ArgumentRequired String
+    deriving (Show)
   
-  data Command = Command String [String] String
+  data Command = Command String Argument String
     deriving (Show)
 
   commandNameParser :: Parser String
   commandNameParser = manyTill anyChar space
 
-  argumentParser :: Parser [String]
-  argumentParser = (: []) <$> (string ":: " *> manyTill anyChar space)
+  argumentRequiredParser :: Parser Argument
+  argumentRequiredParser = ArgumentRequired <$> (string ":: " *> manyTill anyChar space)
+
+  argumentOptionalParser :: Parser Argument
+  argumentOptionalParser = ArgumentOptional <$> (string ":: " *> manyTill anyChar space) <*> (string "= " *> manyTill anyChar space)
 
   commandQueryParser :: Parser String
   commandQueryParser = string "-> " *> manyTill anyChar (() <$ char '\n' <|> eof)
 
   lineParser :: Parser Command
-  lineParser = Command <$> commandNameParser <*> argumentParser <*> commandQueryParser
+  lineParser = Command <$> commandNameParser <*> (try argumentOptionalParser <|> argumentRequiredParser) <*> commandQueryParser
+
+  runParser = parse lineParser ""
