@@ -1,7 +1,7 @@
 module Parser where
 
   import Prelude hiding ((<|>))
-  import Text.Parsec (anyChar, manyTill, space, string, char, eof, parse, (<|>), try)
+  import Text.Parsec (anyChar, manyTill, space, string, char, eof, parse, (<|>), try, ParseError)
   import Text.Parsec.String (Parser)
   import Symbol
 
@@ -20,4 +20,5 @@ module Parser where
   lineParser :: Parser Command
   lineParser = Command <$> commandNameParser <*> (try argumentOptionalParser <|> argumentRequiredParser) <*> commandQueryParser
 
+  runParser :: String -> Either ParseError Command
   runParser = parse lineParser ""
