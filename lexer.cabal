@@ -13,10 +13,12 @@ executable lexer
     other-modules:
         Parser
         Symbol
+        Executor
 
     build-depends:    base ^>=4.14.1.0
                      , relude ^>= 1.0.0.0
                      , parsec
+                     , process
     mixins:           base hiding (Prelude)
                      , relude (Relude as Prelude)
                      , relude

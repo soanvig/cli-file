@@ -1,4 +1,4 @@
-module Parser where
+module Parser (ParseError, runParser) where
 
   import Prelude hiding ((<|>))
   import Text.Parsec (anyChar, manyTill, space, string, char, eof, parse, (<|>), try, ParseError)
