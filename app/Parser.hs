@@ -5,14 +5,17 @@ module Parser (ParseError, runParser) where
   import Text.Parsec.String (Parser)
   import Symbol
 
+  allButSpace :: Parser String
+  allButSpace = manyTill anyChar space
+
   commandNameParser :: Parser String
-  commandNameParser = manyTill anyChar space
+  commandNameParser = allButSpace
 
   argumentRequiredParser :: Parser Argument
-  argumentRequiredParser = ArgumentRequired <$> (string ":: " *> manyTill anyChar space)
+  argumentRequiredParser = ArgumentRequired <$> (string ":: " *> allButSpace)
 
   argumentOptionalParser :: Parser Argument
-  argumentOptionalParser = ArgumentOptional <$> (string ":: " *> manyTill anyChar space) <*> (string "= " *> manyTill anyChar space)
+  argumentOptionalParser = ArgumentOptional <$> (string ":: " *> allButSpace) <*> (string "= " *> allButSpace)
 
   commandQueryParser :: Parser String
   commandQueryParser = string "-> " *> manyTill anyChar (() <$ char '\n' <|> eof)
