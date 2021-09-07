@@ -9,10 +9,11 @@ module Main where
 
   unpackCommands :: [Either ParseError Command] -> Either ParseError [Command]
   unpackCommands = sequence
-
+  
   main :: IO ()
   main = do
     contents <- readFileText "test.cli"
+    args <- getArgs
     let commands = map (runParser . unpack) (lines contents)
 
     case unpackCommands commands of
