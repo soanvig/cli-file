@@ -7,16 +7,18 @@ module Main where
   import Symbol
   import Data.Text (unpack)
 
+  data UserCommand = UserCommand String [String]
+
   unpackCommands :: [Either ParseError Command] -> Either ParseError [Command]
   unpackCommands = sequence
 
-  userCommand :: [String] -> String
+  userCommand :: [String] -> UserCommand
   userCommand [] = undefined
-  userCommand (x : xs) = x
+  userCommand (x : xs) = UserCommand x xs
 
-  matchCommand :: String -> [Command] -> Command
+  matchCommand :: UserCommand -> [Command] -> Command
   matchCommand cmd [] = undefined
-  matchCommand cmd (command@(Command cmdName _ _) : xs) | cmd == cmdName = command
+  matchCommand (UserCommand userCommand _) (command@(Command cmdName _ _) : xs) | userCommand == cmdName = command
   matchCommand cmd (x : xs) = matchCommand cmd xs
 
   main :: IO ()
