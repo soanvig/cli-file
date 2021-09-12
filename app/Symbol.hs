@@ -4,5 +4,7 @@ module Symbol where
       | ArgumentRequired String
       deriving (Show)
     
-    data Command = Command String Argument String
+    data Command = Command String [Argument] String
       deriving (Show)
+
+    data UserCommand = UserCommand String [String]

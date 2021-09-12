@@ -7,14 +7,12 @@ module Main where
   import Symbol
   import Data.Text (unpack)
 
-  data UserCommand = UserCommand String [String]
-
   unpackCommands :: [Either ParseError Command] -> Either ParseError [Command]
   unpackCommands = sequence
 
-  userCommand :: [String] -> UserCommand
-  userCommand [] = undefined
-  userCommand (x : xs) = UserCommand x xs
+  makeUserCommand :: [String] -> UserCommand
+  makeUserCommand [] = undefined
+  makeUserCommand (x : xs) = UserCommand x xs
 
   matchCommand :: UserCommand -> [Command] -> Command
   matchCommand cmd [] = undefined
@@ -30,5 +28,7 @@ module Main where
 
     case unpackCommands commands of
       Left err -> print err
-      Right commands -> executeCommand $ matchCommand (userCommand args) commands
+      Right commands -> executeCommand (matchCommand userCommand commands) userCommand
+        where userCommand = makeUserCommand args
+      
       
