@@ -1,2 +1,2 @@
-test:unit :: file -> echo "Test unit!"
-test:e2e :: file = * -> echo "Test file"
+test:unit :: file -> echo "Test unit $file!"
+test:e2e :: file = test -> echo "Test e2e $file!"

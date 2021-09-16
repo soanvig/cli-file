@@ -6,7 +6,8 @@ module Main where
   import Executor
   import Symbol
   import Data.Text (unpack)
-
+  import Params (replaceCommandParams)
+  
   unpackCommands :: [Either ParseError Command] -> Either ParseError [Command]
   unpackCommands = sequence
 
@@ -28,7 +29,8 @@ module Main where
 
     case unpackCommands commands of
       Left err -> print err
-      Right commands -> executeCommand (matchCommand userCommand commands) userCommand
+      Right commands -> executeCommand parametrizedCommand
         where userCommand = makeUserCommand args
+              parametrizedCommand = replaceCommandParams (matchCommand userCommand commands) userCommand
       
       
