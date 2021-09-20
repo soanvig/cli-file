@@ -2,7 +2,6 @@ module Params (replaceCommandParams) where
 
   import Data.Text (replace, pack, unpack)
   import Symbol ( Argument(..), Command(..), UserCommand(..) )
-  import Control.Exception (throw)
   
   type Param = (String, String) -- param name, param value
 
@@ -26,9 +25,6 @@ module Params (replaceCommandParams) where
   replaceParams command (param : paramRest) = replaceParams (toString replacedCommand) paramRest
     where replacedCommand = replace (toText $ '$' : fst param) (toText $ snd param) (toText command)
 
-  replaceCommandParams :: Command -> UserCommand -> String
-  replaceCommandParams (Command _ commandArgs command) (UserCommand _ userCommandArgs) = replacedCommand
-    where paramsOrError = matchArgs commandArgs userCommandArgs
-          replacedCommand =  case paramsOrError of
-            Left err -> error $ toText err
-            Right params -> replaceParams command params
+  replaceCommandParams :: Command -> UserCommand -> Either String String
+  replaceCommandParams (Command _ commandArgs command) (UserCommand _ userCommandArgs) =
+    replaceParams command <$> matchArgs commandArgs userCommandArgs
