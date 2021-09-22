@@ -3,7 +3,10 @@ module Parser (ParseError, runParser, argumentParser, argumentOptionalParser) wh
   import Prelude hiding ((<|>), many)
   import Text.Parsec (oneOf, alphaNum, letter, choice, anyChar, many, many1, manyTill, space, string, char, eof, parse, (<|>), try, sepBy, ParseError)
   import Text.Parsec.String (Parser)
+  import Text.Parsec.Error (errorMessages, messageString)
   import Symbol
+  import Data.Bifunctor (first)
+
 
   commandNameParser :: Parser String
   commandNameParser = manyTill anyChar space
@@ -29,5 +32,8 @@ module Parser (ParseError, runParser, argumentParser, argumentOptionalParser) wh
   lineParser :: Parser Command
   lineParser = Command <$> commandNameParser <* string ":: " <*> argumentParser <*> commandQueryParser
 
-  runParser :: String -> Either ParseError Command
-  runParser = parse lineParser ""
+  prettyPrintParseError :: ParseError -> String
+  prettyPrintParseError = intercalate "," . map messageString . errorMessages
+
+  runParser :: String -> Either String Command
+  runParser input = first prettyPrintParseError $ parse lineParser "" input

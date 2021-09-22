@@ -15,6 +15,7 @@ executable lexer
         Symbol
         Executor
         Params
+        Command
 
     build-depends:    base ^>=4.14.1.0
                      , relude ^>= 1.0.0.0
