@@ -7,7 +7,7 @@ module Main where
 
   main :: IO ()
   main = do
-    contents <- readFileText "test.cli"
+    contents <- readFileText "commands.cli"
     args <- getArgs
 
     let command = buildCommand contents args

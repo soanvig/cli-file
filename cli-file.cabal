@@ -1,5 +1,5 @@
 cabal-version:      2.4
-name:               lexer
+name:               cli-file
 version:            0.1.0.0
 
 author:             Soanvig
@@ -7,7 +7,7 @@ maintainer:         soanvig@gmail.com
 
 extra-source-files: CHANGELOG.md
 
-executable lexer
+executable cli-file
     main-is:          Main.hs
 
     other-modules:
