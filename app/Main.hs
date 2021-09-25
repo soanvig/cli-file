@@ -13,7 +13,7 @@ module Main where
     let command = buildCommand contents args
 
     case command of
-      Left err -> print err
+      Left err -> putStrLn err
       Right shellCommand -> executeCommand shellCommand
       
       

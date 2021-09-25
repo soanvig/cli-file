@@ -1,2 +1,3 @@
+test -> echo "Test empty"
 test:unit :: file -> echo "Test unit $file!"
 test:e2e :: file = test -> echo "Test e2e $file!"

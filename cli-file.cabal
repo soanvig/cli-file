@@ -12,6 +12,7 @@ executable cli-file
 
     other-modules:
         Parser
+        ParserError
         Symbol
         Executor
         Params

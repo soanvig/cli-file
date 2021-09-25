@@ -1,39 +1,48 @@
-module Parser (ParseError, runParser, argumentParser, argumentOptionalParser) where
+module Parser (runParser) where
 
   import Prelude hiding ((<|>), many)
-  import Text.Parsec (oneOf, alphaNum, letter, choice, anyChar, many, many1, manyTill, space, string, char, eof, parse, (<|>), try, sepBy, ParseError)
+  import Text.Parsec (oneOf, alphaNum, letter, choice, anyChar, many, many1, manyTill, space, string, char, eof, parse, (<|>), try, sepBy)
   import Text.Parsec.String (Parser)
-  import Text.Parsec.Error (errorMessages, messageString)
   import Symbol
   import Data.Bifunctor (first)
+  import ParserError
 
 
-  commandNameParser :: Parser String
-  commandNameParser = manyTill anyChar space
+  commandName :: Parser String
+  commandName = manyTill anyChar space
 
-  argumentNameParser :: Parser String
-  argumentNameParser = many1 alphaNum
+  argumentName :: Parser String
+  argumentName = many1 alphaNum
 
-  argumentValueParser :: Parser String
-  argumentValueParser = many1 alphaNum
+  argumentValue :: Parser String
+  argumentValue = many1 alphaNum
 
-  argumentRequiredParser :: Parser Argument
-  argumentRequiredParser = ArgumentRequired <$> argumentNameParser
+  argumentRequired :: Parser Argument
+  argumentRequired = ArgumentRequired <$> argumentName
 
-  argumentOptionalParser :: Parser Argument
-  argumentOptionalParser = ArgumentOptional <$> argumentNameParser <*> (string " = " *> argumentValueParser)
+  argumentOptional :: Parser Argument
+  argumentOptional = ArgumentOptional <$> argumentName <*> (string " = " *> argumentValue)
 
-  argumentParser :: Parser [Argument]
-  argumentParser = (try argumentOptionalParser <|> argumentRequiredParser) `sepBy` string ", "
+  arguments :: Parser [Argument]
+  arguments = (try argumentOptional <|> argumentRequired) `sepBy` string ", "
 
-  commandQueryParser :: Parser String
-  commandQueryParser = string " -> " *> manyTill anyChar (() <$ char '\n' <|> eof)
+  commandQuery :: Parser String
+  commandQuery = string "-> " *> manyTill anyChar (() <$ char '\n' <|> eof)
 
   lineParser :: Parser Command
-  lineParser = Command <$> commandNameParser <* string ":: " <*> argumentParser <*> commandQueryParser
+  lineParser = try withArguments <|> withoutArguments
+    where
+      withArguments = Command
+        <$> commandName
+        <* string ":: "
+        <*> arguments
+        <* string " "
+        <*> commandQuery
 
-  prettyPrintParseError :: ParseError -> String
-  prettyPrintParseError = intercalate "," . map messageString . errorMessages
+      withoutArguments = Command 
+        <$> commandName
+        <*> pure []
+        <*> commandQuery
 
   runParser :: String -> Either String Command
   runParser input = first prettyPrintParseError $ parse lineParser "" input
