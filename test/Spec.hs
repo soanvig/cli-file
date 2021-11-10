@@ -48,6 +48,10 @@ module Main where
 
         it "should match but fail if too many arguments given" $ do
           buildCommand "myPwd :: param = foobar -> echo $param" ["myPwd", "value", "value"] `shouldBe` tooMuchParameters
+
+      context "when given empty lines or comments" $ do
+        it "should ignore them" $ do
+          buildCommand "\n\n# comment \nmyPwd -> pwd\n # comment with space before" ["myPwd"] `shouldBe` Right "pwd"
         
 
     
