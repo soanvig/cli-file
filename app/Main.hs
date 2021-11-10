@@ -1,9 +1,6 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Main where
 
-  import Executor (executeCommand)
-  import Command (buildCommand)
+  import Lib (executeCommand, buildCommand)
 
   main :: IO ()
   main = do
