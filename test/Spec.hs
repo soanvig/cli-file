@@ -35,6 +35,19 @@ module Main where
 
         it "should match but fail if too many arguments given" $ do
           buildCommand "myPwd :: param -> echo $param" ["myPwd", "value", "value"] `shouldBe` tooMuchParameters
+
+      context "when given input with optional arguments" $ do
+        it "should error no matching command if not found" $ do
+          buildCommand "myEcho :: param = foobar -> echo $param" ["testCommand"] `shouldBe` notMatchingCommand
+
+        it "should match command if possible" $ do
+          buildCommand "myPwd :: param = foobar -> echo $param" ["myPwd", "value"] `shouldBe` Right "echo value"
+
+        it "should match with default value if no parameter given" $ do
+          buildCommand "myPwd :: param = foobar -> echo $param" ["myPwd"] `shouldBe` Right "echo foobar"
+
+        it "should match but fail if too many arguments given" $ do
+          buildCommand "myPwd :: param = foobar -> echo $param" ["myPwd", "value", "value"] `shouldBe` tooMuchParameters
         
 
     
