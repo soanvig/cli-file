@@ -15,9 +15,18 @@ module Main where
     ]
   version = "0.0.1"
 
+  process :: [String] -> IO ()
+  process args = do
+    content <- readFileText "commands.cli"
+    
+    let command = buildCommand content args
+
+    case command of
+      Left err -> putStrLn err
+      Right shellCommand -> executeCommand shellCommand
+
   main :: IO ()
   main = do
-    contents <- readFileText "commands.cli"
     args <- getArgs
 
     case viaNonEmpty head args of
@@ -25,8 +34,6 @@ module Main where
       Just "-h" -> putStrLn help
       Just "--version" -> putStrLn version
       Just "-v" -> putStrLn version
-      _ -> case buildCommand contents args of
-        Left err -> putStrLn err
-        Right shellCommand -> executeCommand shellCommand
+      _ -> process args
       
       
