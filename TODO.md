@@ -4,6 +4,7 @@
 - [ ] Add CI with build and release
 - [ ] README documentation
 - [ ] Add support for longer than one-word argument default values and values passed as input
+- [ ] Add support for selecting command file location
 - [x] Add --version and --help commands
 - [x] Add CI with tests
 - [x] Support for empty lines in command file
