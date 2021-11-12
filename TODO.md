@@ -2,8 +2,8 @@
 
 - [ ] Calling command without parameter should show interactive selection of command (or optionally with --interactive flag?)
 - [ ] Add CI with build and release
-- [ ] README documentation
 - [ ] Add support for longer than one-word argument default values
+- [x] README documentation
 - [x] Add support for selecting command file location
 - [x] Add --version and --help commands
 - [x] Add CI with tests

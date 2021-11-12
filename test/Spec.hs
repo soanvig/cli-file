@@ -52,6 +52,10 @@ module Main where
       context "when given empty lines or comments" $ do
         it "should ignore them" $ do
           buildCommand "\n\n# comment \nmyPwd -> pwd\n # comment with space before" ["myPwd"] `shouldBe` Right "pwd"
+
+      context "when given input with two arguments" $ do
+        it "should match if possible" $ do
+          buildCommand "myEcho :: first, second = World -> echo $first $second" ["myEcho", "Hello"] `shouldBe` Right "echo Hello World"
         
 
     
