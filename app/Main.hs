@@ -9,6 +9,9 @@ module Main where
     "cli-file - tool for easy and programming language-agnostic command-line interfaces for executing commands",
     "It offers domain-specific language: configuration file containing `myEcho :: value = World -> echo Hello $value`",
     "can be executed using `cli-file myEcho` resulting in 'Hello World' or `cli-file myEcho John` resulting in 'Hello John'`",
+    "-c/--commands <file location> - change commands file location",
+    "-h/--help - print this message",
+    "-v/--version - print version",
     "",
     "Alpha version: API is subjected to change",
     "For more details see: https://github.com/soanvig/cli-file"
@@ -45,5 +48,4 @@ module Main where
       Just "--commands" -> handleFileLocation (drop 1 args)
       Just "-c" -> handleFileLocation (drop 1 args)
       _ -> process args "./commands.cli"
-      
       
