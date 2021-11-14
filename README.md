@@ -33,6 +33,7 @@ Syntax:
 2. Command with required argument: `myEcho :: value -> echo Hello $value`
 3. Command with optional argument: `myEcho :: value = World -> echo Hello $value`
 4. Command with multiple arguments: `myEcho :: first, second = World -> echo $first $second`
+5. Comment (only on newline): `# This is comment`
 
 At this point `cli-file` doesn't support default values longer than one word (on TODO list)
 
