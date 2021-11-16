@@ -1,7 +1,7 @@
 module Parser (runParser) where
 
   import Prelude hiding ((<|>), many)
-  import Text.Parsec (oneOf, alphaNum, letter, choice, anyChar, many, many1, manyTill, space, string, char, eof, parse, (<|>), try, sepBy)
+  import Text.Parsec (oneOf, alphaNum, letter, choice, anyChar, many, many1, manyTill, space, string, char, eof, parse, (<|>), try, sepBy, lookAhead)
   import Text.Parsec.String (Parser)
   import Symbol
   import Data.Bifunctor (first)
@@ -15,7 +15,7 @@ module Parser (runParser) where
   argumentName = many1 alphaNum
 
   argumentValue :: Parser String
-  argumentValue = many1 alphaNum
+  argumentValue = manyTill anyChar (lookAhead space)
 
   argumentRequired :: Parser Argument
   argumentRequired = ArgumentRequired <$> argumentName

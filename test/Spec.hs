@@ -43,6 +43,9 @@ module Main where
         it "should match command if possible" $ do
           buildCommand "myPwd :: param = foobar -> echo $param" ["myPwd", "value"] `shouldBe` Right "echo value"
 
+        it "should work with any but space char for default value" $ do
+          buildCommand "myPwd :: param = []*,.!-aąę -> echo $param" ["myPwd", "value"] `shouldBe` Right "echo value"
+
         it "should match with default value if no parameter given" $ do
           buildCommand "myPwd :: param = foobar -> echo $param" ["myPwd"] `shouldBe` Right "echo foobar"
 
