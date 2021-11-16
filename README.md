@@ -35,7 +35,10 @@ Syntax:
 4. Command with multiple arguments: `myEcho :: first, second = World -> echo $first $second`
 5. Comment (only on newline): `# This is comment`
 
-At this point `cli-file` doesn't support default values longer than one word (on TODO list)
+At this point `cli-file` doesn't support default values longer than one word (on TODO list).
+
+`cli-file` substitutes only known `$param` names, therefore if there is any conflict between a parameter name,
+and shell variable, just use different name for the parameter.
 
 ### Switches
 
