@@ -5,8 +5,6 @@ version:            0.0.1
 author:             Soanvig
 maintainer:         soanvig@gmail.com
 
-extra-source-files: CHANGELOG.md
-
 library
     hs-source-dirs:      src
     exposed-modules:     Lib
