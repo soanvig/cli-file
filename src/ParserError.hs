@@ -8,7 +8,7 @@ module ParserError where
   prettyPrintParseError err = "Error during parsing command file\n"
     -- Because we don't parse whole file at once, but line after line,
     -- this will always be line: 1
-    -- ++ "On line: " ++ show errorLine ++ ", "
+    ++ "On line: " ++ show errorLine ++ ", "
     ++ "column: " ++ show errorColumn
     ++ joinedMessage
     where

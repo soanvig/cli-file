@@ -1,12 +1,14 @@
-module Parser (runParser) where
+module Parser where
 
-  import Prelude hiding ((<|>), many)
-  import Text.Parsec (oneOf, alphaNum, letter, choice, anyChar, many, many1, manyTill, space, string, char, eof, parse, (<|>), try, sepBy, lookAhead)
+  import Prelude hiding ((<|>), many, optional)
+  import Text.Parsec (oneOf, alphaNum, letter, choice, anyChar, many, many1, manyTill, space, string, char, eof, parse, (<|>), try, sepBy, sepEndBy, lookAhead, optional, sepEndBy, endOfLine)
   import Text.Parsec.String (Parser)
   import Symbol
   import Data.Bifunctor (first)
   import ParserError
 
+  maybeEol :: Parser ()
+  maybeEol = lookAhead $ choice [eof, () <$ endOfLine]
 
   commandName :: Parser String
   commandName = manyTill anyChar space
@@ -24,25 +26,31 @@ module Parser (runParser) where
   argumentOptional = ArgumentOptional <$> argumentName <*> (string " = " *> argumentValue)
 
   arguments :: Parser [Argument]
-  arguments = (try argumentOptional <|> argumentRequired) `sepBy` string ", "
+  arguments = choice [try argumentOptional, argumentRequired] `sepBy` string ", "
 
   commandQuery :: Parser String
-  commandQuery = string "-> " *> manyTill anyChar (() <$ char '\n' <|> eof)
+  commandQuery = string "-> " *> manyTill anyChar maybeEol
 
-  lineParser :: Parser Command
-  lineParser = try withArguments <|> withoutArguments
+  command :: Parser ParserToken
+  command = try withArguments <|> withoutArguments
     where
-      withArguments = Command
+      withArguments = ParserCommand
         <$> commandName
         <* string ":: "
         <*> arguments
         <* string " "
         <*> commandQuery
 
-      withoutArguments = Command 
+      withoutArguments = ParserCommand 
         <$> commandName
         <*> pure []
         <*> commandQuery
 
-  runParser :: String -> Either String Command
-  runParser input = first prettyPrintParseError $ parse lineParser "" input
+  comment :: Parser ParserToken
+  comment = ParserComment <$> (char '#' *> manyTill anyChar maybeEol)
+
+  fileParser :: Parser [ParserToken]
+  fileParser = many endOfLine *> choice [comment, command] `sepEndBy` many endOfLine <* eof
+
+  runParser :: String -> Either String [ParserToken]
+  runParser input = first prettyPrintParseError $ parse fileParser "" input
