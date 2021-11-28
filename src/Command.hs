@@ -7,9 +7,6 @@ module Command (buildCommand) where
   import Params (replaceCommandParams)
   import Parser
   import Helpers
-  
-  unpackCommands :: [Either String Command] -> Either String [Command]
-  unpackCommands = sequence
 
   makeUserCommand :: [String] -> Either String UserCommand
   makeUserCommand [] = Left "No command given"
@@ -20,19 +17,16 @@ module Command (buildCommand) where
   matchCommand (UserCommand userCommand _) (command@(Command cmdName _ _) : xs) | userCommand == cmdName = Right command
   matchCommand cmd (x : xs) = matchCommand cmd xs
 
-  cleanupLines :: [String] -> [String]
-  cleanupLines [] = []
-  cleanupLines (line : rest)
-    | null cleanedLine = cleanupLines rest
-    | isComment cleanedLine = cleanupLines rest
-    | otherwise = line : cleanupLines rest 
-    where
-      isComment l = viaNonEmpty head l == Just '#'
-      cleanedLine = trim line
+  filterCommands :: [ParserToken] -> [Command]
+  filterCommands [] = []
+  filterCommands ((ParserComment _) : rest) = filterCommands rest
+  filterCommands ((ParserCommand a b c) : rest) = Command a b c : filterCommands rest
+  filterCommands (ParserEmptyLine : rest) = filterCommands rest
 
   buildCommand :: Text -> [String] -> Either String String
   buildCommand commandFile args = do
-    commands <- unpackCommands $ map runParser $ cleanupLines $ map unpack (lines commandFile)
+    parserTokens <- runParser (unpack commandFile)
+    let commands = filterCommands parserTokens
     userCommand <- makeUserCommand args
     matchedCommand <- matchCommand userCommand commands
     replaceCommandParams matchedCommand userCommand

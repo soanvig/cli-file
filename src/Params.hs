@@ -1,7 +1,7 @@
 module Params (replaceCommandParams) where
 
   import Data.Text (replace, pack, unpack)
-  import Symbol ( Argument(..), Command(..), UserCommand(..) )
+  import Symbol
   
   type Param = (String, String) -- param name, param value
 
