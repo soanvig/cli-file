@@ -38,19 +38,19 @@ module Main where
 
       context "when given input with optional arguments" $ do
         it "should error no matching command if not found" $ do
-          buildCommand "myEcho :: param = foobar -> echo $param" ["testCommand"] `shouldBe` notMatchingCommand
+          buildCommand "myEcho :: param = \"foobar\" -> echo $param" ["testCommand"] `shouldBe` notMatchingCommand
 
         it "should match command if possible" $ do
-          buildCommand "myPwd :: param = foobar -> echo $param" ["myPwd", "value"] `shouldBe` Right "echo value"
+          buildCommand "myPwd :: param = \"foobar\" -> echo $param" ["myPwd", "value"] `shouldBe` Right "echo value"
 
-        it "should work with any but space char for default value" $ do
-          buildCommand "myPwd :: param = []*,.!-aąę -> echo $param" ["myPwd", "value"] `shouldBe` Right "echo value"
+        it "should work with any chars in param value" $ do
+          buildCommand "myPwd :: param = \"[]*,. !- aąę\" -> echo $param" ["myPwd", "value"] `shouldBe` Right "echo value"
 
         it "should match with default value if no parameter given" $ do
-          buildCommand "myPwd :: param = foobar -> echo $param" ["myPwd"] `shouldBe` Right "echo foobar"
+          buildCommand "myPwd :: param = \"foobar\" -> echo $param" ["myPwd"] `shouldBe` Right "echo foobar"
 
         it "should match but fail if too many arguments given" $ do
-          buildCommand "myPwd :: param = foobar -> echo $param" ["myPwd", "value", "value"] `shouldBe` tooMuchParameters
+          buildCommand "myPwd :: param = \"foobar\" -> echo $param" ["myPwd", "value", "value"] `shouldBe` tooMuchParameters
 
       context "when given empty lines or comments" $ do
         it "should ignore them" $ do
@@ -58,7 +58,7 @@ module Main where
 
       context "when given input with two arguments" $ do
         it "should match if possible" $ do
-          buildCommand "myEcho :: first, second = World -> echo $first $second" ["myEcho", "Hello"] `shouldBe` Right "echo Hello World"
+          buildCommand "myEcho :: first, second = \"World\" -> echo $first $second" ["myEcho", "Hello"] `shouldBe` Right "echo Hello World"
 
       context "when given input with two commands" $ do
         it "should match if possible" $ do

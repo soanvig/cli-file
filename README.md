@@ -9,7 +9,7 @@ managing deployments and so on, without relying on poor tools like `npm scripts`
 It offers domain-specific language - configuration file containing lines with commands like:
 
 ```
-myEcho :: value = World -> echo Hello $value
+myEcho :: value = "World" -> echo Hello $value
 ```
 
 that can be executed using
@@ -31,8 +31,8 @@ Syntax:
 
 1. Command without any arguments: `myEcho -> echo Hello World`
 2. Command with required argument: `myEcho :: value -> echo Hello $value`
-3. Command with optional argument: `myEcho :: value = World -> echo Hello $value`
-4. Command with multiple arguments: `myEcho :: first, second = World -> echo $first $second`
+3. Command with optional argument: `myEcho :: value = "World" -> echo Hello $value`
+4. Command with multiple arguments: `myEcho :: first, second = "World" -> echo $first $second`
 5. Comment (only on newline): `# This is comment`
 
 At this point `cli-file` doesn't support default values longer than one word (on TODO list).

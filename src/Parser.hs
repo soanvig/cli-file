@@ -17,7 +17,7 @@ module Parser where
   argumentName = many1 alphaNum
 
   argumentValue :: Parser String
-  argumentValue = manyTill anyChar (lookAhead space)
+  argumentValue = char '"' *> manyTill anyChar (char '"')
 
   argumentRequired :: Parser Argument
   argumentRequired = ArgumentRequired <$> argumentName
